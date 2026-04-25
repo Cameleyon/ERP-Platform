@@ -1483,10 +1483,8 @@ body {
 }
 
 .platform-login-shell {
-  width: min(1100px, 100%);
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
-  gap: 1.5rem;
+  width: min(840px, 100%);
+  display: block;
 }
 
 .platform-login-panel,
@@ -1533,7 +1531,7 @@ body {
 .platform-role-card h1 {
   margin: 0.25rem 0 0.75rem;
   color: #044975;
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.7rem, 3.2vw, 2.7rem);
 }
 
 .platform-login-copy p,
@@ -1557,16 +1555,6 @@ body {
 
 .platform-login-form input {
   margin-top: 0.4rem;
-}
-
-.platform-login-aside h2 {
-  margin-top: 0;
-  color: #044975;
-}
-
-.platform-login-aside ul {
-  margin: 1rem 0 0;
-  padding-left: 1.2rem;
 }
 
 .platform-role-card {
@@ -1613,7 +1601,7 @@ body {
 
 @media (max-width: 900px) {
   .platform-login-shell {
-    grid-template-columns: 1fr;
+    width: 100%;
   }
 
   .platform-login-topbar {
