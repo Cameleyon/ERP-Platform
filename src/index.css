@@ -1483,7 +1483,7 @@ body {
 }
 
 .platform-login-shell {
-  width: min(840px, 100%);
+  width: min(760px, 100%);
   display: block;
 }
 
@@ -1497,7 +1497,7 @@ body {
 }
 
 .platform-login-panel {
-  padding: 1.75rem;
+  padding: 1.4rem 1.5rem 1.5rem;
 }
 
 .platform-login-aside,
@@ -1524,7 +1524,7 @@ body {
 }
 
 .platform-login-copy {
-  margin: 1.75rem 0;
+  margin: 1.1rem 0 1.35rem;
 }
 
 .platform-login-copy h1,
