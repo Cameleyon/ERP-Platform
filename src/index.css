@@ -1557,6 +1557,43 @@ body {
   margin-top: 0.4rem;
 }
 
+.inline-text-button {
+  margin-top: 14px;
+  border: none;
+  background: transparent;
+  color: #044975;
+  font-weight: 700;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.inline-text-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 73, 117, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 20;
+}
+
+.auth-overlay-card {
+  width: min(520px, 100%);
+  margin: 0;
+  border-radius: 24px;
+  border: 1px solid rgba(4, 73, 117, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 24px 50px rgba(4, 73, 117, 0.1);
+  padding: 24px;
+}
+
 .platform-role-card {
   width: min(560px, 100%);
 }
