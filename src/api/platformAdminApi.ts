@@ -109,6 +109,64 @@ export type CreateCompanyUserRequest = {
   role: "ADMIN" | "CASHIER"
 }
 
+export type PartnerCodeResponse = {
+  id: number
+  code: string
+  profileType: string
+  ownerName: string | null
+  email: string | null
+  phone: string | null
+  totalClientPayments: number | null
+  totalCommissionAmount: number | null
+  totalPayoutAmount: number | null
+  balanceAmount: number | null
+  portalUserId: number | null
+  portalEnabled: boolean
+  notes: string | null
+  active: boolean
+  createdAt: string | null
+  updatedAt: string | null
+}
+
+export type PromoterPayoutResponse = {
+  id: number
+  amount: number
+  currency: string
+  previousBalance: number
+  newBalance: number
+  notes: string | null
+  paidAt: string
+  createdAt: string | null
+  reportStatus: string | null
+  reportRecipientEmail: string | null
+  reportGeneratedAt: string | null
+  reportSentAt: string | null
+  reportAcknowledgedAt: string | null
+  reportFailureReason: string | null
+}
+
+export type CreatePromoterPayoutRequest = {
+  amount: number
+  currency?: string
+  notes?: string
+  paidAt?: string
+}
+
+function buildDateQuery(startDate?: string, endDate?: string) {
+  const params = new URLSearchParams()
+
+  if (startDate?.trim()) {
+    params.set("startDate", startDate.trim())
+  }
+
+  if (endDate?.trim()) {
+    params.set("endDate", endDate.trim())
+  }
+
+  const query = params.toString()
+  return query ? `?${query}` : ""
+}
+
 export function getSubscriptionPlans() {
   return apiGet<SubscriptionPlanResponse[]>("/admin/subscription-plans")
 }
@@ -177,4 +235,21 @@ export function activateCompanyUser(userId: number) {
 
 export function deactivateCompanyUser(userId: number) {
   return apiPost<CompanyUserResponse, undefined>(`/admin/users/${userId}/deactivate`)
+}
+
+export function getPartnerCodes(startDate?: string, endDate?: string) {
+  return apiGet<PartnerCodeResponse[]>(`/admin/partner-codes${buildDateQuery(startDate, endDate)}`)
+}
+
+export function getPromoterPayouts(partnerCodeId: number, startDate?: string, endDate?: string) {
+  return apiGet<PromoterPayoutResponse[]>(
+    `/admin/partner-codes/${partnerCodeId}/payouts${buildDateQuery(startDate, endDate)}`
+  )
+}
+
+export function createPromoterPayout(partnerCodeId: number, payload: CreatePromoterPayoutRequest) {
+  return apiPost<PromoterPayoutResponse, CreatePromoterPayoutRequest>(
+    `/admin/partner-codes/${partnerCodeId}/payouts`,
+    payload
+  )
 }

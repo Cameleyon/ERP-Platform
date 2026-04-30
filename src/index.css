@@ -1646,3 +1646,49 @@ body {
     align-items: flex-start;
   }
 }
+
+.platform-section-copy {
+  margin: 0.35rem 0 0;
+  color: #4d6273;
+}
+
+.promoter-filter-field {
+  display: grid;
+  gap: 0.25rem;
+  color: #4d6273;
+  font-size: 0.85rem;
+}
+
+.promoter-filter-field input {
+  min-width: 9rem;
+}
+
+.promoter-filter-bar {
+  margin-bottom: 1rem;
+}
+
+.platform-partner-table {
+  overflow-x: auto;
+}
+
+.platform-partner-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.platform-partner-table th,
+.platform-partner-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(4, 73, 117, 0.08);
+  text-align: left;
+  vertical-align: top;
+}
+
+.platform-partner-table th {
+  font-size: 0.85rem;
+  color: #4d6273;
+}
+
+.promoter-history-heading {
+  margin-top: 1rem;
+}

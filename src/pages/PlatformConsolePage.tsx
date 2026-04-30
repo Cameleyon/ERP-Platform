@@ -22,6 +22,7 @@ import {
 } from "../api/platformAdminApi"
 import { useI18n } from "../i18n/I18nContext"
 import { formatCurrency } from "../utils/format"
+import PromoterFinanceSection from "../components/platform/PromoterFinanceSection"
 
 type PlanFormState = {
   code: string
@@ -1195,6 +1196,8 @@ export default function PlatformConsolePage() {
           )}
         </article>
       </section>
+
+      <PromoterFinanceSection />
     </div>
   )
 }
