@@ -1350,31 +1350,29 @@ body.invoice-printing .sidebar-overlay {
 }
 
 .promoter-hero {
+  display: grid;
+  gap: 20px;
+}
+
+.promoter-hero-top {
   display: flex;
   justify-content: space-between;
   gap: 24px;
   align-items: flex-start;
 }
 
+.promoter-hero-copy {
+  display: grid;
+  gap: 8px;
+}
+
 .promoter-hero h1 {
-  margin: 10px 0 8px;
+  margin: 0;
 }
 
 .promoter-hero p {
   margin: 0;
   max-width: 720px;
-}
-
-.promoter-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  font-weight: 800;
-  background: rgba(4, 73, 117, 0.08);
-  color: #044975;
 }
 
 .promoter-hero-actions {
@@ -1383,6 +1381,13 @@ body.invoice-printing .sidebar-overlay {
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
+}
+
+.promoter-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
 }
 
 .promoter-summary-grid {
@@ -1454,11 +1459,12 @@ body.invoice-printing .sidebar-overlay {
 }
 
 @media (max-width: 900px) {
-  .promoter-hero {
+  .promoter-hero-top {
     flex-direction: column;
   }
 
-  .promoter-hero-actions {
+  .promoter-hero-actions,
+  .promoter-filter-bar {
     justify-content: flex-start;
   }
 }

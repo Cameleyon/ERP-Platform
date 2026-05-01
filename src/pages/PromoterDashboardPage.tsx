@@ -26,7 +26,6 @@ export default function PromoterDashboardPage() {
   const text =
     language === "fr"
       ? {
-          badge: "PROMOTEUR",
           title: "Portail promoteur",
           subtitle:
             "Suivez les entreprises rattachees a votre code, vos commissions, votre solde et vos versements.",
@@ -69,7 +68,6 @@ export default function PromoterDashboardPage() {
         }
       : language === "es"
         ? {
-            badge: "PROMOTOR",
             title: "Portal del promotor",
             subtitle:
               "Siga las empresas vinculadas a su codigo, sus comisiones, su saldo y sus pagos recibidos.",
@@ -111,7 +109,6 @@ export default function PromoterDashboardPage() {
             reportFailed: "Fallido",
           }
         : {
-            badge: "PROMOTER",
             title: "Promoter portal",
             subtitle:
               "Track the companies attached to your code, your commissions, your outstanding balance, and your payouts.",
@@ -241,14 +238,20 @@ export default function PromoterDashboardPage() {
   return (
     <div className="promoter-page">
       <section className="promoter-hero card">
-        <div>
-          <div className="promoter-badge">{text.badge}</div>
-          <h1>{text.title}</h1>
-          <p>{text.subtitle}</p>
+        <div className="promoter-hero-top">
+          <div className="promoter-hero-copy">
+            <h1>{text.title}</h1>
+            <p>{text.subtitle}</p>
+          </div>
+          <div className="promoter-hero-actions">
+            <LanguageSwitcher />
+            <button type="button" className="secondary-button" onClick={logoutUser}>
+              {text.logout}
+            </button>
+          </div>
         </div>
 
-        <div className="promoter-hero-actions">
-          <LanguageSwitcher />
+        <div className="promoter-filter-bar">
           <label className="promoter-filter-field">
             <span>{text.startDate}</span>
             <input type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} />
@@ -272,9 +275,6 @@ export default function PromoterDashboardPage() {
             disabled={refreshing}
           >
             {refreshing ? `${text.refresh}...` : text.refresh}
-          </button>
-          <button type="button" className="secondary-button" onClick={logoutUser}>
-            {text.logout}
           </button>
         </div>
       </section>
