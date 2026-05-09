@@ -40,6 +40,11 @@ export type CreateManagedCompanyRequest = {
   phone?: string
   email?: string
   address?: string
+  addressLine1?: string
+  city?: string
+  postalCode?: string
+  country?: string
+  timeZoneId?: string
   currencyCode?: string
   admin: {
     firstName: string

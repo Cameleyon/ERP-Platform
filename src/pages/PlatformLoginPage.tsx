@@ -28,7 +28,6 @@ export default function PlatformLoginPage() {
   const text =
     language === "fr"
       ? {
-          eyebrow: "Portail plateforme",
           title: "CAMELEYON Platform",
           email: "Email",
           password: "Mot de passe",
@@ -62,7 +61,6 @@ export default function PlatformLoginPage() {
         }
       : language === "es"
         ? {
-            eyebrow: "Portal de plataforma",
             title: "CAMELEYON Platform",
             email: "Correo",
             password: "Contrasena",
@@ -95,7 +93,6 @@ export default function PlatformLoginPage() {
             timeRemaining: (count: number) => `Tiempo restante: ${count}s`,
           }
         : {
-            eyebrow: "Platform portal",
             title: "CAMELEYON Platform",
             email: "Email",
             password: "Password",
@@ -265,7 +262,6 @@ export default function PlatformLoginPage() {
           </div>
 
           <div className="platform-login-copy">
-            <p className="platform-login-eyebrow">{text.eyebrow}</p>
             <h1>{text.title}</h1>
           </div>
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useAuth } from "../auth/AuthContext"
 import {
   activateCompanyUser,
@@ -23,6 +23,14 @@ import {
 import { useI18n } from "../i18n/I18nContext"
 import { formatCurrency } from "../utils/format"
 import PromoterFinanceSection from "../components/platform/PromoterFinanceSection"
+import {
+  composeStructuredAddress,
+  formatCurrentTimeInTimeZone,
+  getBrowserTimeZone,
+  getCountryOptions,
+  getTimeZoneOptions,
+  isValidTimeZone,
+} from "../utils/companyLocalization"
 
 type PlanFormState = {
   code: string
@@ -40,7 +48,11 @@ type CompanyFormState = {
   businessType: string
   phone: string
   email: string
-  address: string
+  addressLine1: string
+  city: string
+  postalCode: string
+  country: string
+  timeZoneId: string
   currencyCode: string
   adminFirstName: string
   adminLastName: string
@@ -95,7 +107,11 @@ function createDefaultCompanyForm(): CompanyFormState {
     businessType: "",
     phone: "",
     email: "",
-    address: "",
+    addressLine1: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    timeZoneId: getBrowserTimeZone(),
     currencyCode: "USD",
     adminFirstName: "",
     adminLastName: "",
@@ -182,6 +198,7 @@ export default function PlatformConsolePage() {
   const [planForm, setPlanForm] = useState<PlanFormState>(createDefaultPlanForm)
   const [companyForm, setCompanyForm] = useState<CompanyFormState>(createDefaultCompanyForm)
   const [companyUserForm, setCompanyUserForm] = useState<CompanyUserFormState>(createDefaultCompanyUserForm)
+  const [timePreviewTick, setTimePreviewTick] = useState(() => Date.now())
 
   const text = language === "fr"
     ? {
@@ -255,6 +272,12 @@ export default function PlatformConsolePage() {
         phone: "Téléphone",
         companyEmail: "Email entreprise",
         address: "Adresse",
+        city: "Ville",
+        postalCode: "Code postal",
+        country: "Pays",
+        timeZone: "Fuseau horaire",
+        currentTime: "Heure actuelle",
+        invalidTimeZone: "Fuseau horaire invalide",
         currency: "Devise",
         adminFirstName: "Prénom admin",
         adminLastName: "Nom admin",
@@ -379,6 +402,12 @@ export default function PlatformConsolePage() {
         phone: "Phone",
         companyEmail: "Company email",
         address: "Address",
+        city: "City",
+        postalCode: "Postal code",
+        country: "Country",
+        timeZone: "Time zone",
+        currentTime: "Current time",
+        invalidTimeZone: "Invalid time zone",
         currency: "Currency",
         adminFirstName: "Admin first name",
         adminLastName: "Admin last name",
@@ -433,9 +462,30 @@ export default function PlatformConsolePage() {
         emptySubscription: "Load a company subscription by ID to extend access or change suspension state.",
       }
 
+  const timeZoneOptions = useMemo(() => getTimeZoneOptions(), [])
+  const countryOptions = useMemo(() => getCountryOptions(), [])
+  const currentTimePreview = useMemo(
+    () => formatCurrentTimeInTimeZone(companyForm.timeZoneId, language),
+    [companyForm.timeZoneId, language, timePreviewTick]
+  )
+
   useEffect(() => {
     loadPlans()
   }, [])
+
+  useEffect(() => {
+    if (!isValidTimeZone(companyForm.timeZoneId)) {
+      return
+    }
+
+    const timer = window.setInterval(() => {
+      setTimePreviewTick(Date.now())
+    }, 1000)
+
+    return () => {
+      window.clearInterval(timer)
+    }
+  }, [companyForm.timeZoneId])
 
   async function loadPlans() {
     try {
@@ -490,12 +540,24 @@ export default function PlatformConsolePage() {
       setCompanySuccess("")
       setSubscriptionError("")
 
+      const composedAddress = composeStructuredAddress({
+        addressLine1: companyForm.addressLine1,
+        city: companyForm.city,
+        postalCode: companyForm.postalCode,
+        country: companyForm.country,
+      })
+
       const payload: CreateManagedCompanyRequest = {
         name: companyForm.name.trim(),
         businessType: toOptionalString(companyForm.businessType),
         phone: toOptionalString(companyForm.phone),
         email: toOptionalString(companyForm.email),
-        address: toOptionalString(companyForm.address),
+        address: toOptionalString(composedAddress),
+        addressLine1: toOptionalString(companyForm.addressLine1),
+        city: toOptionalString(companyForm.city),
+        postalCode: toOptionalString(companyForm.postalCode),
+        country: toOptionalString(companyForm.country),
+        timeZoneId: toOptionalString(companyForm.timeZoneId),
         currencyCode: toOptionalString(companyForm.currencyCode),
         admin: {
           firstName: companyForm.adminFirstName.trim(),
@@ -866,7 +928,45 @@ export default function PlatformConsolePage() {
             </label>
             <label className="full-width">
               {text.address}
-              <input value={companyForm.address} onChange={(event) => setCompanyForm((current) => ({ ...current, address: event.target.value }))} />
+              <input value={companyForm.addressLine1} onChange={(event) => setCompanyForm((current) => ({ ...current, addressLine1: event.target.value }))} />
+            </label>
+            <label>
+              {text.city}
+              <input value={companyForm.city} onChange={(event) => setCompanyForm((current) => ({ ...current, city: event.target.value }))} />
+            </label>
+            <label>
+              {text.postalCode}
+              <input value={companyForm.postalCode} onChange={(event) => setCompanyForm((current) => ({ ...current, postalCode: event.target.value }))} />
+            </label>
+            <label>
+              {text.country}
+              <input
+                list="platform-country-options"
+                value={companyForm.country}
+                onChange={(event) => setCompanyForm((current) => ({ ...current, country: event.target.value }))}
+              />
+              <datalist id="platform-country-options">
+                {countryOptions.map((country) => (
+                  <option key={country} value={country} />
+                ))}
+              </datalist>
+            </label>
+            <label className="full-width">
+              {text.timeZone}
+              <input
+                list="platform-time-zone-options"
+                value={companyForm.timeZoneId}
+                onChange={(event) => setCompanyForm((current) => ({ ...current, timeZoneId: event.target.value }))}
+              />
+              <datalist id="platform-time-zone-options">
+                {timeZoneOptions.map((timeZoneId) => (
+                  <option key={timeZoneId} value={timeZoneId} />
+                ))}
+              </datalist>
+              <div className="timezone-preview">
+                <strong>{text.currentTime}:</strong>{" "}
+                {currentTimePreview || text.invalidTimeZone}
+              </div>
             </label>
             <label>
               {text.currency}

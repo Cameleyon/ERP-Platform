@@ -351,6 +351,11 @@ td {
   gap: 6px;
 }
 
+.timezone-preview {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
 .product-filters {
   margin-bottom: 20px;
   background: #f9fafc;
@@ -1559,8 +1564,13 @@ body {
   gap: 1rem;
 }
 
+.platform-login-form label {
+  display: grid;
+  gap: 0.55rem;
+}
+
 .platform-login-form input {
-  margin-top: 0.4rem;
+  margin-top: 0;
 }
 
 .inline-text-button {
