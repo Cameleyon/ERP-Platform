@@ -953,16 +953,16 @@ export default function PlatformConsolePage() {
             </label>
             <label className="full-width">
               {text.timeZone}
-              <input
-                list="platform-time-zone-options"
+              <select
                 value={companyForm.timeZoneId}
                 onChange={(event) => setCompanyForm((current) => ({ ...current, timeZoneId: event.target.value }))}
-              />
-              <datalist id="platform-time-zone-options">
+              >
                 {timeZoneOptions.map((timeZoneId) => (
-                  <option key={timeZoneId} value={timeZoneId} />
+                  <option key={timeZoneId} value={timeZoneId}>
+                    {timeZoneId}
+                  </option>
                 ))}
-              </datalist>
+              </select>
               <div className="timezone-preview">
                 <strong>{text.currentTime}:</strong>{" "}
                 {currentTimePreview || text.invalidTimeZone}
