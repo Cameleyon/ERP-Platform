@@ -78,6 +78,18 @@ type CompanyUserFormState = {
   role: "ADMIN" | "CASHIER"
 }
 
+const CURRENCY_OTHER = "__OTHER__"
+
+const CURRENCY_OPTIONS = [
+  "USD",
+  "CAD",
+  "HTG",
+  "DOP",
+  "EUR",
+  "MXN",
+  "GBP",
+] as const
+
 function createDefaultPlanForm(): PlanFormState {
   return {
     code: "",
@@ -112,7 +124,7 @@ function createDefaultCompanyForm(): CompanyFormState {
     postalCode: "",
     country: "",
     timeZoneId: getBrowserTimeZone(),
-    currencyCode: "USD",
+    currencyCode: "",
     adminFirstName: "",
     adminLastName: "",
     adminEmail: "",
@@ -279,6 +291,9 @@ export default function PlatformConsolePage() {
         currentTime: "Heure actuelle",
         invalidTimeZone: "Fuseau horaire invalide",
         currency: "Devise",
+        selectCurrency: "Choisir une devise",
+        otherCurrency: "Autre devise",
+        otherCurrencyPlaceholder: "Saisir la devise",
         adminFirstName: "Prénom admin",
         adminLastName: "Nom admin",
         adminEmail: "Email admin",
@@ -409,6 +424,9 @@ export default function PlatformConsolePage() {
         currentTime: "Current time",
         invalidTimeZone: "Invalid time zone",
         currency: "Currency",
+        selectCurrency: "Choose a currency",
+        otherCurrency: "Other currency",
+        otherCurrencyPlaceholder: "Enter the currency",
         adminFirstName: "Admin first name",
         adminLastName: "Admin last name",
         adminEmail: "Admin email",
@@ -467,6 +485,14 @@ export default function PlatformConsolePage() {
   const currentTimePreview = useMemo(
     () => formatCurrentTimeInTimeZone(companyForm.timeZoneId, language),
     [companyForm.timeZoneId, language, timePreviewTick]
+  )
+  const selectedCurrencyOption = useMemo(
+    () => (CURRENCY_OPTIONS.includes(companyForm.currencyCode as (typeof CURRENCY_OPTIONS)[number])
+      ? companyForm.currencyCode
+      : companyForm.currencyCode.trim()
+        ? CURRENCY_OTHER
+        : ""),
+    [companyForm.currencyCode]
   )
 
   useEffect(() => {
@@ -970,8 +996,35 @@ export default function PlatformConsolePage() {
             </label>
             <label>
               {text.currency}
-              <input value={companyForm.currencyCode} onChange={(event) => setCompanyForm((current) => ({ ...current, currencyCode: event.target.value.toUpperCase() }))} />
+              <select
+                value={selectedCurrencyOption}
+                onChange={(event) => {
+                  const value = event.target.value
+                  setCompanyForm((current) => ({
+                    ...current,
+                    currencyCode: value === CURRENCY_OTHER ? "" : value,
+                  }))
+                }}
+              >
+                <option value="">{text.selectCurrency}</option>
+                {CURRENCY_OPTIONS.map((currencyCode) => (
+                  <option key={currencyCode} value={currencyCode}>
+                    {currencyCode}
+                  </option>
+                ))}
+                <option value={CURRENCY_OTHER}>{text.otherCurrency}</option>
+              </select>
             </label>
+            {selectedCurrencyOption === CURRENCY_OTHER && (
+              <label>
+                {text.otherCurrency}
+                <input
+                  value={companyForm.currencyCode}
+                  placeholder={text.otherCurrencyPlaceholder}
+                  onChange={(event) => setCompanyForm((current) => ({ ...current, currencyCode: event.target.value.toUpperCase() }))}
+                />
+              </label>
+            )}
             <label>
               {text.adminFirstName}
               <input value={companyForm.adminFirstName} onChange={(event) => setCompanyForm((current) => ({ ...current, adminFirstName: event.target.value }))} />
