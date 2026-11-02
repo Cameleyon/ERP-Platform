@@ -4,7 +4,7 @@ import { LanguageProvider, useI18n } from "./i18n/I18nContext"
 import PlatformConsolePage from "./pages/PlatformConsolePage"
 import PlatformLoginPage from "./pages/PlatformLoginPage"
 import PlatformRoleMismatchPage from "./pages/PlatformRoleMismatchPage"
-import PromoterDashboardPage from "./pages/PromoterDashboardPage"
+import RetiredProgramPage from "./pages/RetiredProgramPage"
 
 const COMPANY_APP_URL =
   (import.meta.env.VITE_COMPANY_APP_URL as string | undefined)?.trim() ||
@@ -15,7 +15,7 @@ function AppContent() {
   const { copy } = useI18n()
 
   useEffect(() => {
-    const primaryColor = user?.role === "PROMOTER" ? "#1d7c74" : "#0f6b9b"
+    const primaryColor = "#0f6b9b"
     const sidebarColor = "#044975"
 
     document.documentElement.style.setProperty("--primary-color", primaryColor)
@@ -35,7 +35,7 @@ function AppContent() {
   }
 
   if (user?.role === "PROMOTER") {
-    return <PromoterDashboardPage />
+    return <RetiredProgramPage />
   }
 
   return <PlatformRoleMismatchPage companyAppUrl={COMPANY_APP_URL} />

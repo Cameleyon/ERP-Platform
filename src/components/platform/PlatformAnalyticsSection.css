@@ -1,0 +1,55 @@
+.platform-analytics {
+  margin-block: 24px;
+  border-block: 1px solid #dce5e9;
+  padding-block: 20px;
+  min-width: 0;
+}
+
+.platform-analytics-heading,
+.platform-analytics-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.platform-analytics-heading {
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.platform-analytics-heading h2 { margin: 0; font-size: 22px; letter-spacing: 0; }
+.platform-analytics button { min-height: 44px; border-radius: 6px; background: #0f6b9b; color: #fff; }
+.platform-analytics :is(button, select, input):focus-visible { outline: 2px solid #0f6b9b; outline-offset: 3px; }
+.platform-analytics-filters { align-items: end; }
+.platform-analytics-filters label { display: grid; gap: 4px; }
+.platform-analytics-filters input,
+.platform-analytics-filters select { min-height: 44px; max-width: 100%; }
+.platform-analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 20px 0 12px;
+  gap: 16px;
+}
+.platform-analytics-metrics > div { border-left: 3px solid #159b80; padding-left: 12px; min-width: 0; }
+.platform-analytics-metrics > div:nth-child(2) { border-color: #4089c5; }
+.platform-analytics-metrics > div:nth-child(3) { border-color: #a67730; }
+.platform-analytics-metrics > div:nth-child(4) { border-color: #7169a5; }
+.platform-analytics-metrics dt { font-size: 14px; overflow-wrap: anywhere; }
+.platform-analytics-metrics dd { font-size: 28px; font-weight: 800; margin: 4px 0 0; overflow-wrap: anywhere; }
+.platform-analytics-note { font-size: 13px; color: #405769; }
+.platform-analytics-table { overflow-x: auto; }
+.platform-analytics-table table { min-width: 480px; }
+.platform-analytics-table th,
+.platform-analytics-table td { padding: 10px 8px; }
+.platform-analytics-table thead th { font-size: 13px; }
+.platform-analytics-table th:not(:first-child),
+.platform-analytics-table td { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 700px) {
+  .platform-analytics-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .platform-analytics-filters > * { flex: 1 1 140px; min-width: 0; }
+  .platform-analytics-table table { min-width: 0; table-layout: fixed; }
+  .platform-analytics-table th,
+  .platform-analytics-table td { padding: 8px 4px; font-size: 12px; white-space: normal; overflow-wrap: anywhere; }
+  .platform-analytics-table th:first-child { width: 34%; }
+}

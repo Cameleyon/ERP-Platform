@@ -22,7 +22,7 @@ import {
 } from "../api/platformAdminApi"
 import { useI18n } from "../i18n/I18nContext"
 import { formatCurrency } from "../utils/format"
-import PromoterFinanceSection from "../components/platform/PromoterFinanceSection"
+import PlatformAnalyticsSection from "../components/platform/PlatformAnalyticsSection"
 import {
   composeStructuredAddress,
   formatCurrentTimeInTimeZone,
@@ -830,6 +830,8 @@ export default function PlatformConsolePage() {
         </div>
       </section>
 
+      <PlatformAnalyticsSection />
+
       <section className="platform-section-grid">
         <article className="card">
           <div className="section-heading">
@@ -1350,7 +1352,6 @@ export default function PlatformConsolePage() {
         </article>
       </section>
 
-      <PromoterFinanceSection />
     </div>
   )
 }
