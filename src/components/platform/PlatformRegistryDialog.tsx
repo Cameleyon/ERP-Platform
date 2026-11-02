@@ -18,19 +18,19 @@ export default function PlatformRegistryDialog({ kind, onClose }: { kind: "compa
   const [refreshKey, setRefreshKey] = useState(0)
 
   const text = language === "fr" ? {
-    companies: "Entreprises enregistrées", locations: "Localisations / sites", close: "Fermer",
+    companies: "Entreprises actives", locations: "Localisations / sites", close: "Fermer",
     search: "Rechercher par nom, pays ou ville", name: "Nom", company: "Entreprise", country: "Pays", city: "Ville",
     status: "Statut", active: "Actif", inactive: "Inactif", sites: "Sites", primary: "Site principal",
     unknown: "Pays non renseigné", loading: "Chargement de la liste…", error: "Impossible de charger la liste.",
     empty: "Aucun résultat.", retry: "Réessayer", previous: "Précédent", next: "Suivant", page: "Page", total: "Total",
   } : language === "es" ? {
-    companies: "Empresas registradas", locations: "Ubicaciones / sitios", close: "Cerrar",
+    companies: "Empresas activas", locations: "Ubicaciones / sitios", close: "Cerrar",
     search: "Buscar por nombre, país o ciudad", name: "Nombre", company: "Empresa", country: "País", city: "Ciudad",
     status: "Estado", active: "Activo", inactive: "Inactivo", sites: "Sitios", primary: "Sede principal",
     unknown: "País no indicado", loading: "Cargando la lista…", error: "No se pudo cargar la lista.",
     empty: "Sin resultados.", retry: "Reintentar", previous: "Anterior", next: "Siguiente", page: "Página", total: "Total",
   } : {
-    companies: "Registered companies", locations: "Locations / sites", close: "Close",
+    companies: "Active companies", locations: "Locations / sites", close: "Close",
     search: "Search by name, country or city", name: "Name", company: "Company", country: "Country", city: "City",
     status: "Status", active: "Active", inactive: "Inactive", sites: "Sites", primary: "Primary site",
     unknown: "Country not provided", loading: "Loading list…", error: "Unable to load the list.",

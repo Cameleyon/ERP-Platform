@@ -191,6 +191,7 @@ export default function PlatformConsolePage() {
   const [companySuccess, setCompanySuccess] = useState("")
   const [subscriptionError, setSubscriptionError] = useState("")
   const [actionSuccess, setActionSuccess] = useState("")
+  const [analyticsRevision, setAnalyticsRevision] = useState(0)
   const [planSubmitting, setPlanSubmitting] = useState(false)
   const [companySubmitting, setCompanySubmitting] = useState(false)
   const [actionLoading, setActionLoading] = useState("")
@@ -849,6 +850,7 @@ export default function PlatformConsolePage() {
       setSubscriptionResults(current => current.map(item => item.companyId === response.companyId ? response : item))
       setActionReason("")
       setActionSuccess(deactivationText.success)
+      setAnalyticsRevision(current => current + 1)
       setDeactivationTarget(null)
       setConfirmationName("")
     } catch (err) {
@@ -873,7 +875,7 @@ export default function PlatformConsolePage() {
         </div>
       </section>
 
-      <PlatformAnalyticsSection />
+      <PlatformAnalyticsSection revision={analyticsRevision} />
 
       <section className="platform-section-grid">
         <article className="card">
