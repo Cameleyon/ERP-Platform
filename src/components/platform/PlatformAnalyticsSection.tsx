@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { apiGet } from "../../api/client"
 import { useI18n } from "../../i18n/I18nContext"
 import "./PlatformAnalyticsSection.css"
+import PlatformRegistryDialog from "./PlatformRegistryDialog"
 
 type CountryCount = { countryCode: string; visits: number; uniqueVisitors: number; locations: number }
 type Overview = {
@@ -26,6 +27,7 @@ export default function PlatformAnalyticsSection() {
   const [error, setError] = useState("")
   const [refreshKey, setRefreshKey] = useState(0)
   const [rangeError, setRangeError] = useState(false)
+  const [details, setDetails] = useState<"companies" | "locations" | null>(null)
 
   const text = language === "fr" ? {
     title: "Activité de la plateforme", visits: "Visites", visitors: "Visiteurs uniques", uniqueColumn: "Uniques",
@@ -112,9 +114,12 @@ export default function PlatformAnalyticsSection() {
       {error && <p role="alert" className="error">{text.error}</p>}
       {loading ? <p role="status">{text.loading}</p> : overview && <>
         <dl className="platform-analytics-metrics">
-          {[[text.visits, overview.visits], [text.visitors, overview.uniqueVisitors],
-            [text.companies, overview.companies], [text.locations, overview.locations]].map(([label, value]) => (
-            <div key={label}><dt>{label}</dt><dd>{number.format(Number(value))}</dd></div>
+          {[{ label: text.visits, value: overview.visits }, { label: text.visitors, value: overview.uniqueVisitors },
+            { label: text.companies, value: overview.companies, kind: "companies" as const },
+            { label: text.locations, value: overview.locations, kind: "locations" as const }].map(metric => (
+            <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.kind
+              ? <button type="button" className="analytics-metric-link" aria-haspopup="dialog" aria-label={`${metric.label} : ${number.format(metric.value)}`} onClick={() => metric.kind && setDetails(metric.kind)}>{number.format(metric.value)}</button>
+              : number.format(metric.value)}</dd></div>
           ))}
         </dl>
         <p className="platform-analytics-note">{text.note}</p>
@@ -132,6 +137,7 @@ export default function PlatformAnalyticsSection() {
           </table>
         </div>
       </>}
+      {details && <PlatformRegistryDialog kind={details} onClose={() => setDetails(null)} />}
     </section>
   )
 }
