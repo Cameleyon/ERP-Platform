@@ -6,6 +6,7 @@ import {
   createCompanyUser,
   createSubscriptionPlan,
   deactivateCompanyUser,
+  deactivateCompany,
   extendCompanyAccess,
   getCompanySubscription,
   getCompanyUsers,
@@ -201,6 +202,24 @@ export default function PlatformConsolePage() {
   const [extensionDays, setExtensionDays] = useState("30")
   const [actionReason, setActionReason] = useState("")
   const [subscription, setSubscription] = useState<CompanySubscriptionResponse | null>(null)
+  const [deactivationTarget, setDeactivationTarget] = useState<CompanySubscriptionResponse | null>(null)
+  const [confirmationName, setConfirmationName] = useState("")
+  const [deactivationError, setDeactivationError] = useState("")
+  const deactivationText = language === "fr" ? {
+    action: "Désactiver l'entreprise", title: "Désactiver définitivement l'entreprise ?",
+    warning: "Cette action est immédiate et irréversible. Les données opérationnelles (ventes, stocks, produits, clients et sites) seront supprimées et tous les accès à cette entreprise seront bloqués. L'entreprise ne pourra pas être réactivée.",
+    retained: "Les comptes utilisateurs, l'identité de l'entreprise et l'historique de facturation seront conservés.",
+    confirm: "Confirmer la désactivation définitive", cancel: "Annuler", name: "Saisissez le nom exact de l'entreprise",
+    progress: "Désactivation...", success: "Entreprise définitivement désactivée. Les comptes utilisateurs ont été conservés.",
+    error: "Impossible de désactiver l'entreprise.", disabled: "Entreprise définitivement désactivée",
+  } : {
+    action: "Deactivate business", title: "Permanently deactivate this business?",
+    warning: "This action is immediate and irreversible. Operational data (sales, inventory, products, customers and sites) will be deleted and all access to this business blocked. The business cannot be reactivated.",
+    retained: "User accounts, business identity and billing history will be retained.",
+    confirm: "Confirm permanent deactivation", cancel: "Cancel", name: "Enter the exact business name",
+    progress: "Deactivating...", success: "Business permanently deactivated. User accounts have been retained.",
+    error: "Unable to deactivate this business.", disabled: "Business permanently deactivated",
+  }
   const [companyUsers, setCompanyUsers] = useState<CompanyUserResponse[]>([])
   const [usersLoading, setUsersLoading] = useState(false)
   const [usersError, setUsersError] = useState("")
@@ -815,6 +834,30 @@ export default function PlatformConsolePage() {
     }
   }
 
+  async function handleDeactivateCompany(event: React.FormEvent) {
+    event.preventDefault()
+    if (!deactivationTarget || confirmationName.trim() !== deactivationTarget.companyName || actionLoading) return
+    try {
+      setActionLoading("deactivate")
+      setDeactivationError("")
+      setSubscriptionError("")
+      setActionSuccess("")
+      const response = await deactivateCompany(deactivationTarget.companyId, {
+        confirmationName: confirmationName.trim(), reason: toOptionalString(actionReason),
+      })
+      setSubscription(response)
+      setSubscriptionResults(current => current.map(item => item.companyId === response.companyId ? response : item))
+      setActionReason("")
+      setActionSuccess(deactivationText.success)
+      setDeactivationTarget(null)
+      setConfirmationName("")
+    } catch (err) {
+      setDeactivationError(err instanceof Error ? err.message : deactivationText.error)
+    } finally {
+      setActionLoading("")
+    }
+  }
+
   return (
     <div className="platform-page">
       <section className="platform-toolbar card">
@@ -1191,7 +1234,7 @@ export default function PlatformConsolePage() {
                     Company #{subscription.companyId} | {subscription.planCode} | {subscription.planName}
                   </p>
                 </div>
-                <span className="platform-status-pill">{subscription.status}</span>
+                <span className="platform-status-pill">{subscription.companyActive === false ? deactivationText.disabled : subscription.status}</span>
               </div>
 
               <div className="platform-detail-grid">
@@ -1231,13 +1274,17 @@ export default function PlatformConsolePage() {
                   {text.extendByDays}
                   <input type="number" min="1" value={extensionDays} onChange={(event) => setExtensionDays(event.target.value)} />
                 </label>
-                <button type="button" onClick={handleExtend} disabled={actionLoading === "extend"}>
+                <button type="button" onClick={handleExtend} disabled={Boolean(actionLoading) || subscription.companyActive === false}>
                   {actionLoading === "extend" ? text.extending : text.extendAccess}
                 </button>
-                <button type="button" className="secondary-button" onClick={handleSuspend} disabled={actionLoading === "suspend"}>
+                <button type="button" className="secondary-button" onClick={handleSuspend} disabled={Boolean(actionLoading) || subscription.companyActive === false || subscription.status === "SUSPENDED"}>
                   {actionLoading === "suspend" ? text.suspending : text.suspend}
                 </button>
-                <button type="button" className="secondary-button" onClick={handleUnsuspend} disabled={actionLoading === "unsuspend"}>
+                <button type="button" className="danger-button" disabled={Boolean(actionLoading) || subscription.companyActive === false}
+                  onClick={() => { setDeactivationTarget(subscription); setConfirmationName(""); setDeactivationError("") }}>
+                  {deactivationText.action}
+                </button>
+                <button type="button" className="secondary-button" onClick={handleUnsuspend} disabled={Boolean(actionLoading) || subscription.companyActive === false || subscription.status !== "SUSPENDED"}>
                   {actionLoading === "unsuspend" ? text.reactivating : text.unsuspend}
                 </button>
               </div>
@@ -1337,7 +1384,7 @@ export default function PlatformConsolePage() {
                               onClick={() => handleCompanyUserStatus(companyUser.id, !companyUser.active)}
                               disabled={userActionLoading === loadingKey}
                             >
-                              {companyUser.active ? text.deactivate : text.activate}
+                              {companyUser.active ? (language === "fr" ? "Désactiver le compte" : "Deactivate account") : text.activate}
                             </button>
                           </td>
                         </tr>
@@ -1352,6 +1399,38 @@ export default function PlatformConsolePage() {
         </article>
       </section>
 
+      {deactivationTarget && (
+        <div className="auth-overlay" role="presentation">
+          <section className="auth-overlay-card company-deactivation-dialog" role="dialog" aria-modal="true" aria-labelledby="deactivation-title" aria-describedby="deactivation-warning"
+            onKeyDown={event => {
+              if (event.key === "Escape" && !actionLoading) setDeactivationTarget(null)
+              if (event.key === "Tab") {
+                const controls = event.currentTarget.querySelectorAll<HTMLElement>('input:not(:disabled), button:not(:disabled)')
+                const first = controls[0], last = controls[controls.length - 1]
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
+                if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
+              }
+            }}>
+            <h2 id="deactivation-title">{deactivationText.title}</h2>
+            <strong>{deactivationTarget.companyName} (#{deactivationTarget.companyId})</strong>
+            <p id="deactivation-warning">{deactivationText.warning}</p>
+            <p>{deactivationText.retained}</p>
+            <form onSubmit={handleDeactivateCompany}>
+              <label>{deactivationText.name}
+                <input autoFocus value={confirmationName} onChange={event => setConfirmationName(event.target.value)}
+                  disabled={Boolean(actionLoading)} autoComplete="off" />
+              </label>
+              {deactivationError && <p className="error" role="alert">{deactivationError}</p>}
+              <div className="company-deactivation-actions">
+                <button type="button" className="secondary-button" disabled={Boolean(actionLoading)} onClick={() => setDeactivationTarget(null)}>{deactivationText.cancel}</button>
+                <button type="submit" className="danger-button" disabled={Boolean(actionLoading) || confirmationName.trim() !== deactivationTarget.companyName}>
+                  {actionLoading === "deactivate" ? deactivationText.progress : deactivationText.confirm}
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

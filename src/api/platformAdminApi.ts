@@ -69,6 +69,7 @@ export type CreateManagedCompanyRequest = {
 export type CompanySubscriptionResponse = {
   companyId: number
   companyName: string
+  companyActive: boolean
   planCode: string
   planName: string
   status: string
@@ -211,6 +212,10 @@ export function suspendCompanySubscription(
     `/admin/companies/${companyId}/suspend`,
     payload
   )
+}
+
+export function deactivateCompany(companyId: number, payload: { confirmationName: string; reason?: string }) {
+  return apiPost<CompanySubscriptionResponse, typeof payload>(`/admin/companies/${companyId}/deactivate`, payload)
 }
 
 export function unsuspendCompanySubscription(
