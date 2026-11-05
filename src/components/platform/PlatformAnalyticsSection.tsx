@@ -3,6 +3,7 @@ import { apiGet } from "../../api/client"
 import { useI18n } from "../../i18n/I18nContext"
 import "./PlatformAnalyticsSection.css"
 import PlatformRegistryDialog from "./PlatformRegistryDialog"
+import SignupAnalyticsSection from "./SignupAnalyticsSection"
 
 type CountryCount = { countryCode: string; visits: number; uniqueVisitors: number; locations: number }
 type Overview = {
@@ -138,6 +139,7 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
         </div>
       </>}
       {details && <PlatformRegistryDialog kind={details} onClose={() => setDetails(null)} />}
+      <SignupAnalyticsSection startDate={applied.startDate} endDate={applied.endDate} refreshToken={`${refreshKey}:${revision}`} />
     </section>
   )
 }

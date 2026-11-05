@@ -78,6 +78,14 @@
 .platform-analytics-metrics dt { font-size: 14px; overflow-wrap: anywhere; }
 .platform-analytics-metrics dd { font-size: 28px; font-weight: 800; margin: 4px 0 0; overflow-wrap: anywhere; }
 .platform-analytics-note { font-size: 13px; color: #405769; }
+.signup-analytics { border-top: 1px solid #dce5e9; margin-top: 24px; padding-top: 20px; min-width: 0; }
+.signup-analytics h3 { margin: 0; font-size: 20px; }
+.signup-analytics small { color: #405769; }
+.signup-outcomes { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px 20px; }
+.signup-outcomes > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; border-bottom: 1px solid #e5ecef; padding: 8px 0; }
+.signup-outcomes dt { font-size: 14px; }
+.signup-outcomes dd { margin: 0; font-size: 18px; font-weight: 700; }
+.signup-analytics .platform-analytics-table table { min-width: 640px; table-layout: auto; }
 .platform-analytics-table { overflow-x: auto; }
 .platform-analytics-table table { min-width: 480px; }
 .platform-analytics-table th,
