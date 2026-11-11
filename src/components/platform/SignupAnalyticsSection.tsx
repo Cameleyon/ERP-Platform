@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { apiGet } from "../../api/client"
 import { useI18n } from "../../i18n/I18nContext"
+import errorMessages from "../../errors/signup-errors.json"
 
 type Counts = { submitted: number; formVisitors: number; codesSent: number; completed: number; completedVisitors: number;
   formErrors: number; verificationErrors: number; expired: number; cancelled: number; pending: number; incomplete: number }
@@ -61,6 +62,8 @@ export default function SignupAnalyticsSection({ startDate, endDate, refreshToke
 
   const number = new Intl.NumberFormat(language)
   const names = new Intl.DisplayNames([language], { type: "region" })
+  const errorLabels: Record<string, string[]> = errorMessages
+  const errorLanguage = language === "fr" ? 1 : language === "es" ? 2 : 0
   return (
     <section className="signup-analytics" aria-labelledby="signup-analytics-title">
       <h3 id="signup-analytics-title">{text.title}</h3>
@@ -91,8 +94,8 @@ export default function SignupAnalyticsSection({ startDate, endDate, refreshToke
         <h4>{text.errors}</h4>
         <p className="platform-analytics-note">{text.errorNote}</p>
         {data.errors.length ? <div className="platform-analytics-table"><table>
-          <thead><tr><th scope="col">{text.reason}</th><th scope="col">{text.attempts}</th><th scope="col">{text.unique}</th></tr></thead>
-          <tbody>{data.errors.map(error => <tr key={error.reasonCode}><th scope="row">{text.reasons[error.reasonCode as keyof typeof text.reasons] || text.failed}</th><td>{number.format(error.attempts)}</td><td>{number.format(error.visitors)}</td></tr>)}</tbody>
+          <thead><tr><th scope="col">Code</th><th scope="col">{text.reason}</th><th scope="col">{text.attempts}</th><th scope="col">{text.unique}</th></tr></thead>
+          <tbody>{data.errors.map(error => <tr key={error.reasonCode}><th scope="row"><code>{error.reasonCode}</code></th><td>{text.reasons[error.reasonCode as keyof typeof text.reasons] || errorLabels[error.reasonCode]?.[errorLanguage] || text.failed}</td><td>{number.format(error.attempts)}</td><td>{number.format(error.visitors)}</td></tr>)}</tbody>
         </table></div> : <p>{text.errorEmpty}</p>}
         <p className="platform-analytics-note">{text.privacy}</p>
       </>}
