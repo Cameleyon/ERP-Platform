@@ -33,6 +33,14 @@ import {
   isValidTimeZone,
 } from "../utils/companyLocalization"
 
+const consoleSections = ["overview", "subscriptions", "companies", "plans"] as const
+type ConsoleSection = typeof consoleSections[number]
+
+function getConsoleSection(): ConsoleSection {
+  const hash = window.location.hash.slice(1)
+  return consoleSections.find(section => section === hash) ?? "overview"
+}
+
 type PlanFormState = {
   code: string
   name: string
@@ -184,11 +192,13 @@ function formatDateTime(value: string | null) {
 export default function PlatformConsolePage() {
   const { logoutUser } = useAuth()
   const { language } = useI18n()
+  const [section, setSection] = useState(getConsoleSection)
   const [plans, setPlans] = useState<SubscriptionPlanResponse[]>([])
   const [plansLoading, setPlansLoading] = useState(true)
   const [plansError, setPlansError] = useState("")
   const [planSuccess, setPlanSuccess] = useState("")
   const [companySuccess, setCompanySuccess] = useState("")
+  const [companyError, setCompanyError] = useState("")
   const [subscriptionError, setSubscriptionError] = useState("")
   const [actionSuccess, setActionSuccess] = useState("")
   const [analyticsRevision, setAnalyticsRevision] = useState(0)
@@ -578,13 +588,22 @@ export default function PlatformConsolePage() {
     }
   }
 
+  useEffect(() => {
+    function handleSectionChange() {
+      setSection(getConsoleSection())
+      window.scrollTo(0, 0)
+    }
+    window.addEventListener("hashchange", handleSectionChange)
+    return () => window.removeEventListener("hashchange", handleSectionChange)
+  }, [])
+
   async function handleCreateCompany(event: React.FormEvent) {
     event.preventDefault()
 
     try {
       setCompanySubmitting(true)
       setCompanySuccess("")
-      setSubscriptionError("")
+      setCompanyError("")
 
       const composedAddress = composeStructuredAddress({
         addressLine1: companyForm.addressLine1,
@@ -635,7 +654,7 @@ export default function PlatformConsolePage() {
       await handleLoadSubscription(response.companyId)
     } catch (err) {
       console.error(err)
-      setSubscriptionError(err instanceof Error ? err.message : text.createCompanyError)
+      setCompanyError(err instanceof Error ? err.message : text.createCompanyError)
     } finally {
       setCompanySubmitting(false)
     }
@@ -860,8 +879,14 @@ export default function PlatformConsolePage() {
     }
   }
 
+  const menu = language === "fr"
+    ? { label: "Navigation super-admin", overview: "Vue d’ensemble", subscriptions: "Abonnements", companies: "Entreprises", plans: "Offres et tarifs" }
+    : language === "es"
+      ? { label: "Navegación de administración", overview: "Resumen", subscriptions: "Suscripciones", companies: "Empresas", plans: "Planes y precios" }
+      : { label: "Super-admin navigation", overview: "Overview", subscriptions: "Subscriptions", companies: "Companies", plans: "Plans and pricing" }
+
   return (
-    <div className="platform-page">
+    <main className="platform-page platform-console">
       <section className="platform-toolbar card">
         <div>
           <div className="platform-badge">{text.platformConsole}</div>
@@ -875,9 +900,19 @@ export default function PlatformConsolePage() {
         </div>
       </section>
 
-      <PlatformAnalyticsSection revision={analyticsRevision} />
+      <nav className="platform-console-menu" aria-label={menu.label}>
+        {consoleSections.map(item => (
+          <a key={item} href={`#${item}`} aria-current={section === item ? "page" : undefined}>
+            {menu[item]}
+          </a>
+        ))}
+      </nav>
 
-      <section className="platform-section-grid">
+      <div hidden={section !== "overview"}>
+        <PlatformAnalyticsSection revision={analyticsRevision} />
+      </div>
+
+      <section className="platform-section-grid" hidden={section !== "plans"} aria-label={menu.plans}>
         <article className="card">
           <div className="section-heading">
             <div>
@@ -970,8 +1005,7 @@ export default function PlatformConsolePage() {
           </form>
         </article>
       </section>
-
-      <section className="platform-section-grid">
+      <section hidden={section !== "companies"} aria-label={menu.companies}>
         <article className="card">
           <div className="section-heading">
             <div>
@@ -981,6 +1015,8 @@ export default function PlatformConsolePage() {
           </div>
 
           {companySuccess && <div className="card success">{companySuccess}</div>}
+          {companySuccess && <a className="platform-console-link" href="#subscriptions">{text.manageCompanySubscription}</a>}
+          {companyError && <div className="card error" role="alert">{companyError}</div>}
 
           <form className="platform-form-grid" onSubmit={handleCreateCompany}>
             <label>
@@ -1158,7 +1194,9 @@ export default function PlatformConsolePage() {
             </div>
           </form>
         </article>
+      </section>
 
+      <section hidden={section !== "subscriptions"} aria-label={menu.subscriptions}>
         <article className="card">
           <div className="section-heading">
             <div>
@@ -1231,9 +1269,12 @@ export default function PlatformConsolePage() {
             <div className="platform-subscription-panel">
               <div className="platform-subscription-head">
                 <div>
-                  <h3>{subscription.companyName}</h3>
+                  <div className="platform-subscription-identity">
+                    <h3>{subscription.companyName}</h3>
+                    <span className="platform-chip">{text.companyId} : {subscription.companyId}</span>
+                  </div>
                   <p>
-                    Company #{subscription.companyId} | {subscription.planCode} | {subscription.planName}
+                    {subscription.planCode} | {subscription.planName}
                   </p>
                 </div>
                 <span className="platform-status-pill">{subscription.companyActive === false ? deactivationText.disabled : subscription.status}</span>
@@ -1433,6 +1474,6 @@ export default function PlatformConsolePage() {
           </section>
         </div>
       )}
-    </div>
+    </main>
   )
 }

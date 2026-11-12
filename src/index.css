@@ -908,6 +908,19 @@ td {
   justify-content: space-between;
   gap: 16px;
   align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.platform-subscription-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  overflow-wrap: anywhere;
+}
+
+.platform-subscription-identity h3 {
+  margin: 0;
 }
 
 .public-price-stack {
@@ -1638,6 +1651,62 @@ body {
 
 .platform-console {
   padding-top: 1.5rem;
+}
+
+.platform-console > [hidden] {
+  display: none;
+}
+
+.platform-console-menu {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 4px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.platform-console-menu a {
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 8px;
+  border-radius: 6px;
+  color: var(--text-color);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.platform-console-menu a:hover {
+  background: #f1f7fa;
+}
+
+.platform-console-menu a[aria-current="page"] {
+  background: #e4f3ef;
+  color: #07594d;
+}
+
+.platform-console-menu a:focus-visible,
+.platform-console-link:focus-visible {
+  outline: 2px solid #0f6b9b;
+  outline-offset: 2px;
+}
+
+.platform-console-link {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: #044975;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .platform-console-menu {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .platform-hero {
