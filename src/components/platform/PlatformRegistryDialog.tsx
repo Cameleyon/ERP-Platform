@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react"
 import { apiGet } from "../../api/client"
 import { useI18n } from "../../i18n/I18nContext"
 
-type Company = { id: number; name: string; country: string | null; countryCode: string; city: string | null; active: boolean; sites: number }
-type Location = Omit<Company, "sites"> & { companyId: number; companyName: string; primaryLocation: boolean }
+type Company = { id: number; name: string; country: string | null; countryCode: string; city: string | null; active: boolean; sites: number; products?: number }
+type Location = Omit<Company, "sites" | "products"> & { companyId: number; companyName: string; primaryLocation: boolean }
 type RegistryPage = { items: (Company | Location)[]; total: number; page: number; size: number }
 
-export default function PlatformRegistryDialog({ kind, onClose }: { kind: "companies" | "locations"; onClose: () => void }) {
+export default function PlatformRegistryDialog({ kind, hasProducts, title, onClose }: {
+  kind: "companies" | "locations"; hasProducts?: boolean; title?: string; onClose: () => void
+}) {
   const { language } = useI18n()
   const dialogRef = useRef<HTMLDialogElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
@@ -19,18 +21,21 @@ export default function PlatformRegistryDialog({ kind, onClose }: { kind: "compa
 
   const text = language === "fr" ? {
     companies: "Entreprises actives", locations: "Localisations / sites actifs", close: "Fermer",
+    products: "Produits",
     search: "Rechercher par nom, pays ou ville", name: "Nom", company: "Entreprise", country: "Pays", city: "Ville",
     status: "Statut", active: "Actif", inactive: "Inactif", sites: "Sites", primary: "Site principal",
     unknown: "Pays non renseigné", loading: "Chargement de la liste…", error: "Impossible de charger la liste.",
     empty: "Aucun résultat.", retry: "Réessayer", previous: "Précédent", next: "Suivant", page: "Page", total: "Total",
   } : language === "es" ? {
     companies: "Empresas activas", locations: "Ubicaciones / sitios activos", close: "Cerrar",
+    products: "Productos",
     search: "Buscar por nombre, país o ciudad", name: "Nombre", company: "Empresa", country: "País", city: "Ciudad",
     status: "Estado", active: "Activo", inactive: "Inactivo", sites: "Sitios", primary: "Sede principal",
     unknown: "País no indicado", loading: "Cargando la lista…", error: "No se pudo cargar la lista.",
     empty: "Sin resultados.", retry: "Reintentar", previous: "Anterior", next: "Siguiente", page: "Página", total: "Total",
   } : {
     companies: "Active companies", locations: "Active locations / sites", close: "Close",
+    products: "Products",
     search: "Search by name, country or city", name: "Name", company: "Company", country: "Country", city: "City",
     status: "Status", active: "Active", inactive: "Inactive", sites: "Sites", primary: "Primary site",
     unknown: "Country not provided", loading: "Loading list…", error: "Unable to load the list.",
@@ -60,13 +65,14 @@ export default function PlatformRegistryDialog({ kind, onClose }: { kind: "compa
     setLoading(true)
     setFailed(false)
     const params = new URLSearchParams({ search: query.search, page: String(query.page), size: "25" })
+    if (kind === "companies" && hasProducts !== undefined) params.set("hasProducts", String(hasProducts))
     apiGet<RegistryPage>(`/admin/analytics/${kind}?${params}`).then(data => {
       if (!cancelled) setResult(data)
     }).catch(() => {
       if (!cancelled) { setFailed(true); setResult(null) }
     }).finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [kind, query, refreshKey])
+  }, [kind, hasProducts, query, refreshKey])
 
   const number = new Intl.NumberFormat(language)
   const names = new Intl.DisplayNames([language], { type: "region" })
@@ -75,7 +81,7 @@ export default function PlatformRegistryDialog({ kind, onClose }: { kind: "compa
   return (
     <dialog ref={dialogRef} className="analytics-registry-dialog" aria-labelledby="registry-title" onCancel={event => { event.preventDefault(); onClose() }}>
       <div className="analytics-registry-heading">
-        <h2 id="registry-title">{text[kind]}</h2>
+        <h2 id="registry-title">{title ?? text[kind]}</h2>
         <button type="button" onClick={onClose}>{text.close}</button>
       </div>
       <label className="analytics-registry-search">{text.search}
@@ -91,15 +97,15 @@ export default function PlatformRegistryDialog({ kind, onClose }: { kind: "compa
               <thead><tr><th scope="col">{text.name}</th>
                 {kind === "locations" && <th scope="col">{text.company}</th>}
                 <th scope="col">{text.country}</th><th scope="col">{text.city}</th><th scope="col">{text.status}</th>
-                {kind === "companies" && <th scope="col">{text.sites}</th>}
+                {kind === "companies" && <><th scope="col">{text.sites}</th><th scope="col">{text.products}</th></>}
               </tr></thead>
-              <tbody>{result.items.length === 0 ? <tr><td colSpan={kind === "locations" ? 6 : 5}>{text.empty}</td></tr> : result.items.map(row => (
+              <tbody>{result.items.length === 0 ? <tr><td colSpan={6}>{text.empty}</td></tr> : result.items.map(row => (
                 <tr key={row.id}>
                   <th scope="row">{row.name}{"primaryLocation" in row && row.primaryLocation && <small>{text.primary}</small>}</th>
                   {"companyName" in row && <td>{row.companyName}</td>}
                   <td>{row.countryCode === "ZZ" ? row.country || text.unknown : names.of(row.countryCode)}</td>
                   <td>{row.city || "—"}</td><td>{row.active ? text.active : text.inactive}</td>
-                  {"sites" in row && <td>{number.format(row.sites)}</td>}
+                  {"sites" in row && <><td>{number.format(row.sites)}</td><td>{row.products === undefined ? "—" : number.format(row.products)}</td></>}
                 </tr>
               ))}</tbody>
             </table>

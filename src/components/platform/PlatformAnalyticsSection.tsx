@@ -8,6 +8,7 @@ import SignupAnalyticsSection from "./SignupAnalyticsSection"
 type CountryCount = { countryCode: string; visits: number; uniqueVisitors: number; locations: number }
 type Overview = {
   visits: number; uniqueVisitors: number; companies: number; locations: number
+  companiesWithProducts?: number
   trackingConfigured: boolean; trackingSince: string | null; countries: CountryCount[]
 }
 
@@ -28,7 +29,7 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
   const [error, setError] = useState("")
   const [refreshKey, setRefreshKey] = useState(0)
   const [rangeError, setRangeError] = useState(false)
-  const [details, setDetails] = useState<"companies" | "locations" | null>(null)
+  const [details, setDetails] = useState<"companies" | "locations" | "withProducts" | "withoutProducts" | null>(null)
 
   const text = language === "fr" ? {
     title: "Activité de la plateforme", visits: "Visites", visitors: "Visiteurs uniques", uniqueColumn: "Uniques",
@@ -38,6 +39,8 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
     empty: "Aucune donnée pour cette période.", loading: "Chargement des statistiques…",
     invalid: "Choisissez une période valide de 366 jours maximum.",
     error: "Impossible de charger les statistiques.",
+    withProducts: "Entreprises avec des produits", withoutProducts: "Entreprises sans produit",
+    adoptionNote: "Les deux compteurs de catalogue portent sur les entreprises actives et ne dépendent pas de la période sélectionnée.",
     note: "Visites et visiteurs uniques sur la période (UTC). Entreprises et sites : actifs uniquement. Les sites d'entreprises désactivées sont exclus. Un visiteur unique correspond à un navigateur.",
     disabled: "Le suivi des visites n’est pas encore configuré.",
     noVisits: "Aucune visite enregistrée. Le suivi n’est pas rétroactif.", since: "Première visite enregistrée le",
@@ -48,6 +51,8 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
     apply: "Aplicar", refresh: "Actualizar", country: "País", unknown: "País no indicado",
     empty: "No hay datos para este período.", loading: "Cargando estadísticas…",
     invalid: "Seleccione un período válido de hasta 366 días.", error: "No se pudieron cargar las estadísticas.",
+    withProducts: "Empresas con productos", withoutProducts: "Empresas sin productos",
+    adoptionNote: "Los dos indicadores del catálogo cuentan solo empresas activas, independientemente del período seleccionado.",
     note: "Visitas y visitantes únicos del período (UTC). Solo empresas y sitios activos. Se excluyen los sitios de empresas desactivadas. Un visitante único corresponde a un navegador.",
     disabled: "El seguimiento de visitas aún no está configurado.",
     noVisits: "No se registraron visitas. El seguimiento no es retroactivo.", since: "Primera visita registrada el",
@@ -57,6 +62,8 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
     start: "From", end: "To", apply: "Apply", refresh: "Refresh", country: "Country", unknown: "Country not provided",
     empty: "No data for this period.", loading: "Loading statistics…",
     invalid: "Choose a valid range of at most 366 days.", error: "Unable to load statistics.",
+    withProducts: "Companies with products", withoutProducts: "Companies without products",
+    adoptionNote: "Both catalog counts cover active companies and are independent of the selected date range.",
     note: "Visits and unique visitors within the period (UTC). Active companies and sites only. Sites belonging to deactivated companies are excluded. A unique visitor represents a browser.",
     disabled: "Visit tracking is not configured yet.", noVisits: "No visits recorded. Tracking is not retroactive.",
     since: "First visit recorded on",
@@ -114,16 +121,21 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
       {rangeError && <p role="alert" className="error">{text.invalid}</p>}
       {error && <p role="alert" className="error">{text.error}</p>}
       {loading ? <p role="status">{text.loading}</p> : overview && <>
-        <dl className="platform-analytics-metrics">
+        <dl className={overview.companiesWithProducts === undefined ? "platform-analytics-metrics" : "platform-analytics-metrics has-adoption"}>
           {[{ label: text.visits, value: overview.visits }, { label: text.visitors, value: overview.uniqueVisitors },
             { label: text.companies, value: overview.companies, kind: "companies" as const },
-            { label: text.locations, value: overview.locations, kind: "locations" as const }].map(metric => (
+            { label: text.locations, value: overview.locations, kind: "locations" as const },
+            ...(overview.companiesWithProducts === undefined ? [] : [
+              { label: text.withProducts, value: overview.companiesWithProducts, kind: "withProducts" as const },
+              { label: text.withoutProducts, value: overview.companies - overview.companiesWithProducts, kind: "withoutProducts" as const },
+            ])].map(metric => (
             <div key={metric.label}><dt>{metric.label}</dt><dd>{metric.kind
               ? <button type="button" className="analytics-metric-link" aria-haspopup="dialog" aria-label={`${metric.label} : ${number.format(metric.value)}`} onClick={() => metric.kind && setDetails(metric.kind)}>{number.format(metric.value)}</button>
               : number.format(metric.value)}</dd></div>
           ))}
         </dl>
         <p className="platform-analytics-note">{text.note}</p>
+        {overview.companiesWithProducts !== undefined && <p className="platform-analytics-note">{text.adoptionNote}</p>}
         {!overview.trackingConfigured && <p role="status">{text.disabled}</p>}
         <p className="platform-analytics-note">{overview.trackingSince
           ? `${text.since} ${new Intl.DateTimeFormat(language, { dateStyle: "medium", timeZone: "UTC" }).format(new Date(overview.trackingSince))}.`
@@ -138,7 +150,10 @@ export default function PlatformAnalyticsSection({ revision = 0 }: { revision?: 
           </table>
         </div>
       </>}
-      {details && <PlatformRegistryDialog kind={details} onClose={() => setDetails(null)} />}
+      {details && <PlatformRegistryDialog key={details} kind={details === "locations" ? "locations" : "companies"}
+        hasProducts={details === "withProducts" ? true : details === "withoutProducts" ? false : undefined}
+        title={details === "withProducts" || details === "withoutProducts" ? text[details] : undefined}
+        onClose={() => setDetails(null)} />}
       <SignupAnalyticsSection startDate={applied.startDate} endDate={applied.endDate} refreshToken={`${refreshKey}:${revision}`} />
     </section>
   )

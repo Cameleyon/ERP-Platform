@@ -75,6 +75,7 @@
 .platform-analytics-metrics > div:nth-child(2) { border-color: #4089c5; }
 .platform-analytics-metrics > div:nth-child(3) { border-color: #a67730; }
 .platform-analytics-metrics > div:nth-child(4) { border-color: #7169a5; }
+.platform-analytics-metrics.has-adoption { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .platform-analytics-metrics dt { font-size: 14px; overflow-wrap: anywhere; }
 .platform-analytics-metrics dd { font-size: 28px; font-weight: 800; margin: 4px 0 0; overflow-wrap: anywhere; }
 .platform-analytics-note { font-size: 13px; color: #405769; }
@@ -94,7 +95,8 @@
 .platform-analytics-table th:not(:first-child),
 .platform-analytics-table td { text-align: right; font-variant-numeric: tabular-nums; }
 @media (max-width: 700px) {
-  .platform-analytics-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .platform-analytics-metrics,
+  .platform-analytics-metrics.has-adoption { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .platform-analytics-filters > * { flex: 1 1 140px; min-width: 0; }
   .platform-analytics-table table { min-width: 0; table-layout: fixed; }
   .platform-analytics-table th,
